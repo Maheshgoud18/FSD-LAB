@@ -1,14 +1,32 @@
-const http = require("http");
+import http from "http";
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, {
-        "Content-Type": "text/html"
+const options = {
+    hostname: "localhost",
+    port: 8088,
+    path: "/",
+    method: "GET"
+};
+
+function handleResponse(response) {
+    let serverData = "";
+
+    response.on("data", function (chunk) {
+        serverData += chunk;
     });
 
-    res.write("<h1>HELLO WELCOME TO NODE.JS......!</h1>");
-    res.end();
+    response.on("end", function () {
+        console.log("Response Status:", response.statusCode);
+        console.log("Response Headers:", response.headers);
+        console.log("Response Body:");
+        console.log(serverData);
+    });
+}
+
+const request = http.request(options, function (response) {
+    handleResponse(response);
 });
 
-server.listen(3000, () => {
-    console.log("Server is running at port 3000");
+request.on("error", function (error) {
+    console.log("Request Error:", error);
+    console.log("Request Code:", error.message);
 });
